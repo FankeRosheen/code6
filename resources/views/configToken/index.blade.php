@@ -219,10 +219,6 @@
                         width: 500,
                         iconCls: 'icon-page-wrench',
                         layout: 'fit',
-                        listeners: {
-                            'close': function () {
-                            }
-                        },
                         items: [
                             {
                                 xtype: 'form',
