@@ -1,7 +1,6 @@
 @extends('base')
 @section('content')
     <link rel="stylesheet" href="{{ URL::asset('css/configToken.css?v=') . VERSION }}">
-
     <script>
         Ext.onReady(function () {
             Ext.QuickTips.init(true, {dismissDelay: 0});
@@ -51,6 +50,7 @@
                     margin: '5 12 15 18',
                     items: [
                         {
+                            id: 'help',
                             text: '帮助信息',
                             iconCls: 'icon-page-star',
                             handler: function () {
@@ -65,6 +65,14 @@
                         },
                         '->',
                         {
+                            text: '配置引导',
+                            iconCls: 'icon-page-magnify',
+                            handler: function () {
+                                guide();
+                            }
+                        },
+                        {
+                            id: 'addToken',
                             text: '新增令牌',
                             iconCls: 'icon-add',
                             margin: '0 13 0 0',
@@ -204,61 +212,72 @@
             });
 
             function winForm(data) {
-                var win = Ext.create('Ext.window.Window', {
-                    title: '令牌信息',
-                    width: 500,
-                    iconCls: 'icon-page-wrench',
-                    layout: 'fit',
-                    items: [
-                        {
-                            xtype: 'form',
-                            layout: 'form',
-                            bodyPadding: 15,
-                            items: [
-                                {
-                                    name: 'token',
-                                    xtype: 'textfield',
-                                    fieldLabel: '令牌',
-                                    allowBlank: false,
-                                    value: data.token,
-                                },
-                                {
-                                    name: 'description',
-                                    xtype: 'textfield',
-                                    fieldLabel: '说明',
-                                    value: data.description,
-                                }
-                            ],
-                            buttons: [
-                                {
-                                    text: '重置',
-                                    handler: function () {
-                                        this.up('form').getForm().reset();
+                if (!Ext.getCmp('tokenWin')) {
+                    var win = Ext.create('Ext.window.Window', {
+                        id: 'tokenWin',
+                        title: '令牌信息',
+                        width: 500,
+                        iconCls: 'icon-page-wrench',
+                        layout: 'fit',
+                        listeners: {
+                            'close': function () {
+                            }
+                        },
+                        items: [
+                            {
+                                xtype: 'form',
+                                layout: 'form',
+                                bodyPadding: 15,
+                                items: [
+                                    {
+                                        id: 'token',
+                                        name: 'token',
+                                        xtype: 'textfield',
+                                        fieldLabel: '令牌',
+                                        allowBlank: false,
+                                        value: data.token,
+                                    },
+                                    {
+                                        id: 'description',
+                                        name: 'description',
+                                        xtype: 'textfield',
+                                        fieldLabel: '说明',
+                                        value: data.description,
                                     }
-                                },
-                                {
-                                    text: '提交',
-                                    formBind: true,
-                                    handler: function () {
-                                        var params = this.up('form').getValues();
-                                        var method = data.id ? 'PUT' : 'POST';
-                                        var url = data.id ? '/api/configToken/' + data.id : '/api/configToken';
-                                        tool.ajax(method, url, params, function (rsp) {
-                                            if (rsp.success) {
-                                                win.close();
-                                                tool.toast('操作成功', 'success');
-                                                var index = data.id ? grid.store.indexOfId(data.id) : 0;
-                                                grid.store.insert(Math.max(0, index), rsp.data);
-                                            } else {
-                                                tool.toast(rsp.message, 'warning');
-                                            }
-                                        });
+                                ],
+                                buttons: [
+                                    {
+                                        text: '重置',
+                                        handler: function () {
+                                            this.up('form').getForm().reset();
+                                        }
+                                    },
+                                    {
+                                        id: 'submit',
+                                        text: '提交',
+                                        formBind: true,
+                                        handler: function () {
+                                            var params = this.up('form').getValues();
+                                            var method = data.id ? 'PUT' : 'POST';
+                                            var url = data.id ? '/api/configToken/' + data.id : '/api/configToken';
+                                            tool.ajax(method, url, params, function (rsp) {
+                                                if (rsp.success) {
+                                                    win.close();
+                                                    tool.toast('操作成功', 'success');
+                                                    var index = data.id ? grid.store.indexOfId(data.id) : 0;
+                                                    grid.store.insert(Math.max(0, index), rsp.data);
+                                                } else {
+                                                    tool.toast(rsp.message, 'warning');
+                                                }
+                                            });
+                                        }
                                     }
-                                }
-                            ]
-                        }
-                    ]
-                }).show();
+                                ]
+                            }
+                        ]
+                    }).show();
+                    steps();
+                }
             }
 
             Ext.create('Ext.container.Container', {
@@ -267,6 +286,72 @@
                 layout: 'fit',
                 items: [grid],
             });
+
+            function guide() {
+                var driver = new Driver({
+                    opacity: 0,
+                    doneBtnText: '完成',
+                    closeBtnText: '关闭',
+                    nextBtnText: '下一步',
+                    prevBtnText: '上一步',
+                    allowClose: true
+                });
+                driver.defineSteps([
+                    {
+                        element: '#addToken',
+                        popover: {
+                            className: 'addToken',
+                            title: '新增令牌',
+                            description: '点击 <span style="color:#1890FF"> 新增令牌 </span> 按钮',
+                            position: 'left'
+                        }
+                    }
+                ]);
+                driver.start();
+            }
+
+            function steps() {
+                var driver = new Driver({
+                    opacity: 0,
+                    doneBtnText: '完成',
+                    closeBtnText: '关闭',
+                    nextBtnText: '下一步',
+                    prevBtnText: '上一步',
+                    allowClose: false,
+                });
+                var tokenDescription = '';
+                tokenDescription += '例：<span style="color:#157FCC">7832e5a6b69bc6bc0aa4</span></br>详情点击';
+                tokenDescription += `<span style="color:#157FCC;cursor: pointer;" onclick="document.getElementById('help').click()"> 帮助信息 </span>`
+                driver.defineSteps([
+                    {
+                        element: '#token-inputEl',
+                        popover: {
+                            className: 'token-steps',
+                            title: '令牌配置',
+                            description: tokenDescription,
+                            position: 'right'
+                        }
+                    },
+                    {
+                        element: '#description-inputEl',
+                        popover: {
+                            className: 'description-steps',
+                            title: '说明',
+                            description: '说明或备注（选填）',
+                            position: 'right'
+                        }
+                    }, {
+                        element: '#submit',
+                        popover: {
+                            className: 'submit-steps',
+                            title: '提交',
+                            description: `提交后请前往（配置中心 - <a style='color:#157FCC' href="/configJob" target='_blank'>任务配置</a>）进行任务配置`,
+                            position: 'right'
+                        }
+                    }
+                ]);
+                driver.start();
+            }
         });
     </script>
 @endsection

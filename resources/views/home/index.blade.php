@@ -11,6 +11,29 @@
                 '    <p class="content">{name}</p>',
                 '</div>',
             );
+            var configStatus = [
+                {
+                    name: '令牌配置',
+                    tooltipText: '请通过（配置中心 - <a style="color:#157FCC" href="configToken">令牌配置</a>）进行配置',
+                    type: 'configToken'
+                },
+                {
+                    name: '任务配置',
+                    tooltipText: '请前往（配置中心 - <a style="color:#157FCC" href="configJob">任务配置</a>）进行配置',
+                    type: 'configJob'
+                }
+            ];
+            var tplConfigStatus = new Ext.XTemplate(
+                '<div class="center">',
+                '<p class="title">配置状态</p>',
+                '<div class="config-status"><tpl for=".">',
+                '<div class="tooltip">',
+                '<span id="{type}"></span>',
+                '{name}<div class="tooltip-text">{tooltipText}</div>',
+                '</div></tpl>',
+                '</div>',
+                '</div>'
+            );
 
             Ext.create('Ext.container.Container', {
                 id: 'container',
@@ -87,15 +110,7 @@
                                 ]
                             },
                             {
-                                bodyPadding: '14 0',
-                                html: new Ext.XTemplate(
-                                    '<div class="center">',
-                                    '    <p class="title">版本信息</p>',
-                                    '    <p class="content">{version}（GPL v3）</p>',
-                                    '</div>',
-                                ).apply({
-                                    version: '{{ VERSION }}',
-                                })
+                                html: tplConfigStatus.apply(configStatus)
                             }
                         ],
                     },
@@ -149,14 +164,14 @@
                                         }
                                     },
                                     {
-                                        margin: '25 0 0 0',
-                                        height: 100,
+                                        bodyPadding: '14 0',
                                         html: new Ext.XTemplate(
-                                            '    <p class="title">运行环境</p>',
-                                            '    <p class="content">PHP {phpVersion} + Laravel {laravelVersion}</p>',
+                                            '<div class="center">',
+                                            '    <p class="title">版本信息</p>',
+                                            '    <p class="content">{version}（GPL v3）</p>',
+                                            '</div>',
                                         ).apply({
-                                            phpVersion: '{{ PHP_VERSION }}',
-                                            laravelVersion: '{{ app()::VERSION }}',
+                                            version: '{{ VERSION }}',
                                         })
                                     }
                                 ]
@@ -302,6 +317,8 @@
             tool.ajax('GET', '/api/home/jobCount', {}, function (rsp) {
                 if (!rsp.data) {
                     tool.toast('尚未配置扫描任务<br/>请前往 [ 任务配置 ] 模块配置！', 'warning', 15000);
+                } else {
+                    document.getElementById('configJob').setAttribute('class', 'active');
                 }
             });
 
@@ -309,6 +326,8 @@
             tool.ajax('GET', '/api/home/tokenCount', {}, function (rsp) {
                 if (!rsp.data) {
                     tool.toast('尚未配置 GitHub 令牌<br/>请前往 [ 令牌配置 ] 模块配置！', 'warning', 15000);
+                } else {
+                    document.getElementById('configToken').setAttribute('class', 'active');
                 }
             });
         });

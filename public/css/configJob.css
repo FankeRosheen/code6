@@ -9,3 +9,18 @@
 .x-form-trigger {
     background-position: 0 center !important;
 }
+
+.addJob {
+    top: 8px !important;
+    margin-left: 12px !important;
+}
+
+.keyword-steps {
+    margin-top: 8px !important;
+    margin-left: 10px !important
+}
+
+.scanpage-steps, .scanintervalmin-steps, .storetype-steps,.description-steps {
+    margin-top: 8px !important;
+    margin-left: -10px !important;
+}

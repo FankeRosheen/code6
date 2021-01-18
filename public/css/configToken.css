@@ -18,3 +18,13 @@
 .progress span {
     padding-left: 8px;
 }
+
+.addToken {
+    top: 8px !important;
+    margin-left: 12px !important;
+}
+
+.token-steps, .description-steps, .submit-steps {
+    margin-top: 8px !important;
+    margin-left: -8px !important;
+}

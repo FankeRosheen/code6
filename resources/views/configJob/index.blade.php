@@ -36,6 +36,14 @@
                         },
                         '->',
                         {
+                            text: '配置引导',
+                            iconCls: 'icon-page-magnify',
+                            handler: function () {
+                                guide();
+                            }
+                        },
+                        {
+                            id: 'addJob',
                             text: '新增任务',
                             iconCls: 'icon-add',
                             margin: '0 13 0 0',
@@ -154,108 +162,117 @@
             });
 
             function winForm(data) {
-                var win = Ext.create('Ext.window.Window', {
-                    title: '任务信息',
-                    width: 600,
-                    iconCls: 'icon-page-wrench',
-                    layout: 'fit',
-                    items: [
-                        {
-                            xtype: 'form',
-                            layout: 'form',
-                            bodyPadding: 15,
-                            defaults: {
-                                xtype: 'textfield',
-                                allowBlank: false,
-                                labelAlign: 'right',
-                            },
-                            items: [
-                                {
-                                    name: 'keyword',
-                                    fieldLabel: '扫描关键字',
-                                    value: data.keyword,
-                                    triggers: {
-                                        search: {
-                                            cls: 'icon-zoom',
-                                            tooltip: '查看关键字搜索结果',
-                                            handler: function () {
-                                                var keyword = this.up('form').getValues().keyword;
-                                                if (!keyword) {
-                                                    tool.toast('还未设置关键字！');
-                                                    return;
+                if (!Ext.getCmp('jobWin')) {
+                    var win = Ext.create('Ext.window.Window', {
+                        id: 'jobWin',
+                        title: '任务信息',
+                        width: 600,
+                        iconCls: 'icon-page-wrench',
+                        layout: 'fit',
+                        items: [
+                            {
+                                xtype: 'form',
+                                layout: 'form',
+                                bodyPadding: 15,
+                                defaults: {
+                                    xtype: 'textfield',
+                                    allowBlank: false,
+                                    labelAlign: 'right',
+                                },
+                                items: [
+                                    {
+                                        id: 'keyword',
+                                        name: 'keyword',
+                                        fieldLabel: '扫描关键字',
+                                        value: data.keyword,
+                                        triggers: {
+                                            search: {
+                                                cls: 'icon-zoom',
+                                                tooltip: '查看关键字搜索结果',
+                                                handler: function () {
+                                                    var keyword = this.up('form').getValues().keyword;
+                                                    if (!keyword) {
+                                                        tool.toast('还未设置关键字！');
+                                                        return;
+                                                    }
+                                                    tool.winOpen(GitHub + 'search?o=desc&q=' + keyword + '&s=indexed&type=Code')
                                                 }
-                                                tool.winOpen(GitHub + 'search?o=desc&q=' + keyword + '&s=indexed&type=Code')
                                             }
                                         }
+                                    },
+                                    {
+                                        id: 'scanPage',
+                                        xtype: 'numberfield',
+                                        name: 'scan_page',
+                                        fieldLabel: '扫描页数（每页 30 条）',
+                                        minValue: 1,
+                                        value: data.scan_page ? data.scan_page : 3,
+                                    },
+                                    {
+                                        id: 'scanIntervalMin',
+                                        xtype: 'numberfield',
+                                        name: 'scan_interval_min',
+                                        fieldLabel: '扫描间隔（分钟）',
+                                        minValue: 1,
+                                        value: data.scan_interval_min ? data.scan_interval_min : 60,
+                                    },
+                                    {
+                                        id: 'storeType',
+                                        xtype: 'combo',
+                                        name: 'store_type',
+                                        fieldLabel: '扫描结果',
+                                        editable: false,
+                                        valueField: 'value',
+                                        store: {data: storeType},
+                                        value: data.store_type ? data.store_type : 0,
+                                        listConfig: {
+                                            tpl: [
+                                                '<tpl for=".">',
+                                                '<li role="option" class="x-boundlist-item" data-qtip="{qtip}">{text}</li>',
+                                                '</tpl>'
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        id: 'description',
+                                        name: 'description',
+                                        fieldLabel: '说　　明',
+                                        allowBlank: true,
+                                        value: data.description,
                                     }
-                                },
-                                {
-                                    xtype: 'numberfield',
-                                    name: 'scan_page',
-                                    fieldLabel: '扫描页数（每页 30 条）',
-                                    minValue: 1,
-                                    value: data.scan_page ? data.scan_page : 3,
-                                },
-                                {
-                                    xtype: 'numberfield',
-                                    name: 'scan_interval_min',
-                                    fieldLabel: '扫描间隔（分钟）',
-                                    minValue: 1,
-                                    value: data.scan_interval_min ? data.scan_interval_min : 60,
-                                },
-                                {
-                                    xtype: 'combo',
-                                    name: 'store_type',
-                                    fieldLabel: '扫描结果',
-                                    editable: false,
-                                    valueField: 'value',
-                                    store: {data: storeType},
-                                    value: data.store_type ? data.store_type : 0,
-                                    listConfig: {
-                                        tpl: [
-                                            '<tpl for=".">',
-                                            '<li role="option" class="x-boundlist-item" data-qtip="{qtip}">{text}</li>',
-                                            '</tpl>'
-                                        ]
+                                ],
+                                buttons: [
+                                    {
+                                        text: '重置',
+                                        handler: function () {
+                                            this.up('form').getForm().reset();
+                                        }
+                                    },
+                                    {
+                                        text: '提交',
+                                        formBind: true,
+                                        handler: function () {
+                                            var params = this.up('form').getValues();
+                                            var method = data.id ? 'PUT' : 'POST';
+                                            var url = data.id ? '/api/configJob/' + data.id : '/api/configJob';
+                                            tool.ajax(method, url, params, function (rsp) {
+                                                if (rsp.success) {
+                                                    win.close();
+                                                    tool.toast('操作成功', 'success');
+                                                    var index = data.id ? grid.store.indexOfId(data.id) : 0;
+                                                    grid.store.insert(Math.max(0, index), rsp.data);
+                                                } else {
+                                                    tool.toast(rsp.message, 'warning');
+                                                }
+                                            });
+                                        }
                                     }
-                                },
-                                {
-                                    name: 'description',
-                                    fieldLabel: '说　　明',
-                                    allowBlank: true,
-                                    value: data.description,
-                                }
-                            ],
-                            buttons: [
-                                {
-                                    text: '重置',
-                                    handler: function () {
-                                        this.up('form').getForm().reset();
-                                    }
-                                },
-                                {
-                                    text: '提交',
-                                    formBind: true,
-                                    handler: function () {
-                                        var params = this.up('form').getValues();
-                                        var method = data.id ? 'PUT' : 'POST';
-                                        var url = data.id ? '/api/configJob/' + data.id : '/api/configJob';
-                                        tool.ajax(method, url, params, function (rsp) {
-                                            if (rsp.success) {
-                                                win.close();
-                                                tool.toast('操作成功', 'success');
-                                                var index = data.id ? grid.store.indexOfId(data.id) : 0;
-                                                grid.store.insert(Math.max(0, index), rsp.data);
-                                            } else {
-                                                tool.toast(rsp.message, 'warning');
-                                            }
-                                        });
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }).show();
+                                ]
+                            }
+                        ]
+                    }).show();
+                    steps();
+                }
             }
 
             function winHelp() {
@@ -283,6 +300,88 @@
                 layout: 'fit',
                 items: [grid],
             });
+
+            function guide() {
+                var driver = new Driver({
+                    opacity: 0,
+                    doneBtnText: '完成',
+                    closeBtnText: '关闭',
+                    nextBtnText: '下一步',
+                    prevBtnText: '上一步',
+                    allowClose: true
+                });
+                driver.defineSteps([
+                    {
+                        element: '#addJob',
+                        popover: {
+                            className: 'addJob',
+                            title: '新增任务',
+                            description: '点击 <span style="color:#1890FF"> 新增任务 </span> 按钮',
+                            position: 'left'
+                        }
+                    }
+                ]);
+                driver.start();
+            }
+
+            function steps() {
+                var driver = new Driver({
+                    opacity: 0,
+                    doneBtnText: '完成',
+                    closeBtnText: '关闭',
+                    nextBtnText: '下一步',
+                    prevBtnText: '上一步',
+                    allowClose: false
+                });
+                driver.defineSteps([
+                    {
+                        element: '#keyword-inputEl',
+                        popover: {
+                            className: 'keyword-steps',
+                            title: '扫描关键字',
+                            description: '说明请点击左上角 <span style="color:#1890FF"> 关键字说明 </span> 按钮进行查看',
+                            position: 'right'
+                        }
+                    },
+                    {
+                        element: '#scanPage-bodyEl',
+                        popover: {
+                            className: 'scanpage-steps',
+                            title: '扫描页数',
+                            description: '每次扫描页数',
+                            position: 'right'
+                        }
+                    },
+                    {
+                        element: '#scanIntervalMin-bodyEl',
+                        popover: {
+                            className: 'scanintervalmin-steps',
+                            title: '扫描间隔',
+                            description: '扫描任务间隔时间，单位（分钟）',
+                            position: 'right'
+                        }
+                    },
+                    {
+                        element: '#storeType-bodyEl',
+                        popover: {
+                            className: 'storetype-steps',
+                            title: '扫描结果',
+                            description: '扫描结果记录方式设置',
+                            position: 'right'
+                        }
+                    },
+                    {
+                        element: '#description-inputEl',
+                        popover: {
+                            className: 'description-steps',
+                            title: '说明',
+                            description: '说明备注',
+                            position: 'right'
+                        }
+                    }
+                ]);
+                driver.start();
+            }
         });
     </script>
 @endsection

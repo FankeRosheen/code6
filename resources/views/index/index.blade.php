@@ -9,7 +9,6 @@
         <div></div>
         <div></div>
     </div>
-
     <script>
         Ext.onReady(function () {
             Ext.create('Ext.container.Container', {
@@ -66,6 +65,7 @@
                                 text: '配置中心',
                                 iconCls: 'icon-cog',
                                 margin: '0 40 0 -15',
+                                id: 'menu',
                                 menu: {
                                     xtype: 'menu',
                                     items: {
@@ -80,11 +80,13 @@
                                         },
                                         items: [
                                             {
+                                                id: 'configJob',
                                                 text: '任务配置',
                                                 iconCls: 'icon-page-star',
                                                 href: '/configJob',
                                             },
                                             {
+                                                id: 'configToken',
                                                 text: '令牌配置',
                                                 iconCls: 'icon-page-key',
                                                 href: '/configToken',

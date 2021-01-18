@@ -241,6 +241,10 @@ a {
     background: url(../image/icon/zoom.png) no-repeat;
 }
 
+.icon-page-magnify {
+    background: url(../image/icon/page-magnify.png) no-repeat;
+}
+
 /* Scroll Bar */
 ::-webkit-scrollbar-track-piece {
     background: #F5F5F5;
@@ -257,4 +261,16 @@ a {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #CDCDCD;
+}
+
+#driver-highlighted-element-stage, #driver-page-overlay {
+    display: none !important;
+}
+
+div#driver-popover-item .driver-popover-title {
+    font-size: 16px !important;
+}
+
+.driver-popover-description {
+    color: #666;
 }

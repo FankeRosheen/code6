@@ -42,3 +42,56 @@
     height: 100%;
     background: #1890FF;
 }
+
+/* 配置状态 */
+.config-status {
+    display: flex;
+    width: 200px;
+    margin: 20px auto 0;
+    justify-content: space-between;
+}
+
+.tooltip {
+    font-size: 14px;
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-color: #f56c6c;
+    border-radius: 12px;
+    font-size: 0;
+    color: #fff;
+    font-weight: 600;
+    margin: 0 10px 0 0;
+}
+
+.tooltip span.active {
+    background-color: #5daf34;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 180px;
+    word-wrap: break-word;
+    border-radius: 5px;
+    box-shadow: rgb(204, 204, 204) 2px 2px 2px;
+    border: 1px solid rgb(181, 181, 181);
+    background: rgb(255, 255, 255);
+    color: #333;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 2px;
+    font-size: 12px;
+    position: absolute;
+    z-index: 9999999;
+    top: -2px;
+    left: 30px;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+}
